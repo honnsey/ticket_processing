@@ -133,14 +133,22 @@ def ticket_gen(params):
     # join metadata and activities_data and save file to local disk
     final = metadata.copy()
     final.update({"activities_data": activities_data})
-    if os.path.exists(r"data") == False:
-        os.mkdir("data")
-    with open(os.path.join("data",file_name), 'w') as outfile:
+
+    expected_path = os.path.join("data", "json")
+    if os.path.exists(expected_path) == False:
+        os.makedirs(expected_path)
+    else:
+        [
+            os.remove(os.path.join(expected_path,name))
+            for name in os.listdir(expected_path)
+        ]
+
+    with open(os.path.join("data",'json',file_name), 'w') as outfile:
         json.dump(final,outfile,cls=NumpyEncoder,indent=4)
 
 if __name__ == '__main__':
     # take inputs
-    parser = argparse.ArgumentParser(description = "Create helpdesk tickets")
+    parser = argparse.ArgumentParser(description = "Export helpdesk tickets")
     parser.add_argument('-n', help='number of tickets to be generated')
     parser.add_argument('-o', help='json output file name')
     args = parser.parse_args()

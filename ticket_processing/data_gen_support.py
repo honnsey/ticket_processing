@@ -141,8 +141,7 @@ def get_single_ship_date(metadata):
     end_date = dt.strptime(metadata['metadata']['start_at'],"%d-%m-%Y %H:%M:%S %z")
     start_date = "".join(["-",str(np.random.randint(0,14,1)[0]),"d"])
     return dt.strftime(fake.date_time_between(start_date=start_date, end_date=end_date),
-                   '%d %b,%Y')
-
+                   '%d %b, %Y')
 
 def get_tickets_with_notes(ticket_id):
     '''
