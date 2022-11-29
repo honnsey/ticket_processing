@@ -34,9 +34,13 @@ def ticket_gen(params):
 
     #============= generate performed_at timestamp =============
     # get array of status for each unique ticket
+    start_tstamp = dt.strptime(metadata['metadata']['start_at'],
+                               "%d-%m-%Y %H:%M:%S %z").timestamp()
+    end_tstamp = dt.strptime(metadata['metadata']['end_at'],
+                             "%d-%m-%Y %H:%M:%S %z").timestamp()
     status_p_ticket = [status[idx] for idx in idx_ticket_ids]  # list of arrays
-    timestamps_p_ticket = np.concatenate(
-        [get_time_from_status(x, metadata) for x in status_p_ticket])
+    timestamps_p_ticket = np.array(
+        [get_time_per_ticket(x, start_tstamp, end_tstamp) for x in status_p_ticket],dtype=object)
 
     performed_at = transform_unique_array(timestamps_p_ticket, ticket_id)
 

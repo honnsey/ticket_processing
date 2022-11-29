@@ -2,11 +2,11 @@
 # coding: utf-8
 
 import random
-from faker import Faker
-fake = Faker()
 from datetime import timedelta, datetime as dt
+import pytz
+from faker import Faker
 import numpy as np
-from field_options import activity_priorities, issue_types
+from ticket_processing.field_options import activity_priorities, issue_types, status_order
 
 def contact_customer_check(status):
     if status in ["Closed","Resolved","Waiting for Customer"]:
@@ -76,7 +76,6 @@ def get_priority(issue_type):
     '''
     return activity_priorities[list(issue_types.keys()).index(issue_type)]
 
-
 def transform_unique_array(unique_field,ticket_id):
     '''
     Transform array with per-unique-ticket values to array corresponding to ticket ID
@@ -93,51 +92,27 @@ def transform_unique_array(unique_field,ticket_id):
         output[idx] = unique_field[j]
     return output
 
-def fake_time_long_format(start_date_dt, end_date_dt):
-    '''
-    Return a fake date between input start date and end date.
-    Both inputs must be of type datetime
-    Output in string, format e.g. '28-11-2022 12:05:37 +0000'
-    '''
-    fake = Faker()
-    fake_date_dt = fake.date_time_between(start_date=start_date_dt, end_date=end_date_dt)
-    return " ".join([dt.strftime(fake_date_dt, "%d-%m-%Y %H:%M:%S"), "+0000"])
 
-# function to create timestamp for each ticket
-def get_time_from_status(status,metadata):
-    '''
-    Input is an array of status for one ticket
-    Output is a numpy array of correspoding timestamp based on status
-    '''
-    # generate empty array of same shape as status
-    output = np.empty(shape = status.shape,dtype = object)
+def get_time_per_ticket(status, start_tstamp, end_tstamp):
 
-    # convert metadata start and end dates to datetime format
-    end_date_dt = dt.strptime(metadata['metadata']['end_at'],"%d-%m-%Y %H:%M:%S %z")
-    start_date_dt = dt.strptime(metadata['metadata']['start_at'],"%d-%m-%Y %H:%M:%S %z")
+    status_rank = np.array([status_order.index(_) for _ in status])
+    order = status_rank.argsort()
+    ranks = order.argsort()
 
-    # closed status corresponds to latest timestamp
-    if "Closed" in status:
-        idx = np.argwhere(status =='Closed')[0][0] # idx type = integer
-        output[idx] = fake_time_long_format(start_date_dt + timedelta(hours = 6),end_date_dt) # string format
-        end_date_dt = dt.strptime(output[idx],"%d-%m-%Y %H:%M:%S %z")
+    timestamps = np.sort(
+        np.random.choice(np.arange(start_tstamp, end_tstamp),
+                         size=len(status),
+                         replace=False))
+    time_list = [
+        dt.strftime(dt.fromtimestamp(x, pytz.timezone("UTC")),
+                    "%d-%m-%Y %H:%M:%S %z") for x in timestamps
+    ]
+    time_ordered = np.array([time_list[i] for i in ranks])
 
-    # resolved corresponds to latest or 2nd latest timestamp
-    if "Resolved" in status:
-        idx = np.argwhere(status =='Resolved')[0][0] # idx type = integer
-        output[idx] = fake_time_long_format(start_date_dt + timedelta(hours = 2),end_date_dt) # string format
-        end_date_dt = dt.strptime(output[idx],"%d-%m-%Y %H:%M:%S %z")
-
-    # for other status, generate a random timestamp
-    remaining_status = np.setdiff1d(status,np.array(['Closed','Resolved']))
-    if len(remaining_status) > 0:
-        output_idx = np.concatenate([np.where(status == x)[0] for x in remaining_status])
-        output[output_idx] = [fake_time_long_format(start_date_dt,end_date_dt)
-                              for i in range(len(remaining_status))]
-
-    return output
+    return time_ordered
 
 def get_single_ship_date(metadata):
+    fake = Faker()
     end_date = dt.strptime(metadata['metadata']['start_at'],"%d-%m-%Y %H:%M:%S %z")
     start_date = "".join(["-",str(np.random.randint(0,14,1)[0]),"d"])
     return dt.strftime(fake.date_time_between(start_date=start_date, end_date=end_date),

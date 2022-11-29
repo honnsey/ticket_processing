@@ -5,6 +5,10 @@ import numpy as np
 
 # As per assessment details
 status_list = ["Open","Closed","Resolved","Waiting for Customer","Waiting for Third Party","Pending"]
+status_order = [
+    'Open', 'Pending', 'Waiting for Customer', 'Waiting for Third Party',
+    'Resolved', 'Closed'
+]
 
 # Properties as per freshdesk website
 # https://support.freshdesk.com/en/support/solutions/articles/226460-export-ticket-activities-from-your-helpdesk

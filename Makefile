@@ -1,4 +1,4 @@
-ticket_amount = 5
+ticket_amount = 1000
 json_file_name = local_test.json
 
 install:
