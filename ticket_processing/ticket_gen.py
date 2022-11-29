@@ -1,13 +1,13 @@
 import argparse
-
+import os
+import json
+from numpyencoder import NumpyEncoder
 from data_gen_support import *
 from field_options import *
 
 def ticket_gen(params):
     file_name = params.o
-    n = params.n # number of tickets
-
-    print(f"{file_name} contains {n} tickets")
+    n = int(params.n) # number of tickets
 
     #============= generate metadata =============
     metadata = {
@@ -42,9 +42,7 @@ def ticket_gen(params):
 
     # generate fields for each unique ticket ID
     performer_type = np.array(['user'] * len(ticket_uniques))
-    performer_id = np.random.choice(performer_ids,
-                                    len(ticket_uniques),
-                                    replace=True)
+    performer_id = np.random.choice(performer_ids, len(ticket_uniques), replace=True)
     shipping_address = np.array(['N/A'] * len(ticket_uniques))
     category = np.random.choice(list(products.keys()),
                                 len(ticket_uniques),
@@ -72,6 +70,7 @@ def ticket_gen(params):
         get_single_ship_date(metadata) for i in range(len(idx))
     ]
 
+    # populate generated data to match size of ticket_id
     performer_type = transform_unique_array(performer_type, ticket_id)
     performer_id = transform_unique_array(performer_id, ticket_id)
     shipping_address = transform_unique_array(shipping_address, ticket_id)
@@ -86,8 +85,58 @@ def ticket_gen(params):
     shipment_date = transform_unique_array(shipment_date_p_ticket, ticket_id)
     contacted_customer = np.array([contact_customer_check(x) for x in status])
 
+    #============= generate notes for randomly choosen ticket =============
+    note, idx_ticketID_w_notes = get_tickets_with_notes(ticket_id)
 
+    #============= generate & save json file =============
 
+    activities_data = []
+    for i in range(len(ticket_id)):
+        activities_data.append({
+            "performed_at": performed_at[i],
+            "ticket_id": ticket_id[i],
+            "performer_type": performer_type[i],
+            "performer_id": performer_id[i],
+            "activity": {
+                "shipping_address": shipping_address[i],
+                "shipment_date": shipment_date[i],
+                "category": category[i],
+                "contacted_customer": contacted_customer[i],
+                "issue_type": issue_type[i],
+                "source": source[i],
+                "status": status[i],
+                "priority": priority[i],
+                "group": group[i],
+                "agent_id": agent_id[i],
+                "requester": requester[i],
+                "product": product[i]
+            }
+        })
+
+    # for each activity, remove fields baed on conditions
+    for i,data in enumerate(activities_data):
+        # add notes and remove other fields where notes are generated
+        if i in idx_ticketID_w_notes:
+            del data['activity']
+            data['activity'] = {"note": note[idx_ticketID_w_notes.index(i)]}
+
+        # remove shipment_date and shipment_address fields where value is None
+        else:
+            if data['activity']['shipment_date']== None:
+                del data['activity']['shipment_date']
+                del data['activity']['shipping_address']
+
+            # if ticket has to do with Vendor, remove contact customer
+            if data['activity']['issue_type']== 'Vendor':
+                del data['activity']['contacted_customer']
+
+    # join metadata and activities_data and save file to local disk
+    final = metadata.copy()
+    final.update({"activities_data": activities_data})
+    if os.path.exists(r"data") == False:
+        os.mkdir("data")
+    with open(os.path.join("data",file_name), 'w') as outfile:
+        json.dump(final,outfile,cls=NumpyEncoder,indent=4)
 
 if __name__ == '__main__':
     # take inputs

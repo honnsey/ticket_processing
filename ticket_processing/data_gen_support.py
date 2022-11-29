@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
 import random
 from faker import Faker
 fake = Faker()
 from datetime import timedelta, datetime as dt
 import numpy as np
 from field_options import activity_priorities, issue_types
-
 
 def contact_customer_check(status):
     if status in ["Closed","Resolved","Waiting for Customer"]:
@@ -144,3 +142,32 @@ def get_single_ship_date(metadata):
     start_date = "".join(["-",str(np.random.randint(0,14,1)[0]),"d"])
     return dt.strftime(fake.date_time_between(start_date=start_date, end_date=end_date),
                    '%d %b,%Y')
+
+
+def get_tickets_with_notes(ticket_id):
+    '''
+    Randomly choose a small number of ticket ids and assign a note to each of those.
+    Any ticket containing a note will not have other fields
+    Return:
+    - list of notes for the number of choosen tickets
+    - list of ticket ID indices (in input ticket id array) where a note will be created
+    '''
+    ticket_uniques, unique_counts = np.unique(ticket_id, return_counts=True)
+
+    # randomly choose some ticket ids with notes only
+    ticketID_note_pop = ticket_uniques[np.where(unique_counts == 1)[0]]
+    choose_random_note = random.choices(
+        [1, 0], weights=[10, 90], k=len(ticketID_note_pop)
+    )  # if random no. = 1, ticket with notes, else no note
+    ticketID_w_notes = ticketID_note_pop * choose_random_note
+    ticketID_w_notes = ticketID_w_notes[ticketID_w_notes != 0]  # remove zero
+
+    # generate note for the choosen ticket ids
+    note_id = np.random.randint(1000000, 9999999, len(ticketID_w_notes))
+    note_type = np.random.randint(0, 7, len(ticketID_w_notes))
+    note = [{"id": x, "type": y} for x, y in zip(note_id, note_type)]
+
+    idx_ticketID_w_notes = np.concatenate(
+        [np.where(ticket_id == x)[0] for x in ticketID_w_notes]).tolist()
+
+    return note, idx_ticketID_w_notes
