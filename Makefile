@@ -1,7 +1,7 @@
-ticket_amount = 20
-json_file_name = test_20.json
-db_name = ticket_activities_20.sqlite
-output_csv = output_20.csv
+ticket_amount = 1000
+json_file_name = test_1000.json
+db_name = ticket_activities_1000.sqlite
+output_csv = output_1000.csv
 
 install:
 	@pip install -e .
@@ -14,3 +14,6 @@ create_process_tickets:
 	@python ticket_processing/export_json.py -db ${db_name}
 	@python ticket_processing/sql_queries.py -db ${db_name} -o ${output_csv}
 	@echo '**${ticket_amount} tickets generated and processed successfully!**'
+
+remove_data_dir:
+	@rm -r data
