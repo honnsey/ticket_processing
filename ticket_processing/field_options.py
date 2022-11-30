@@ -57,4 +57,3 @@ issue_types = {
                 }
 activity_priorities = [1,1,2,4,4,3,1]
 performer_ids = np.arange(149015,149020) # assumer there are 5 agents
-# requesters = np.arange(1,n+1)

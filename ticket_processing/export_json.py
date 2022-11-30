@@ -1,14 +1,14 @@
+import argparse
 import os
 import json
 import pandas as pd
 from sqlalchemy import create_engine
 
-def export_json():
-    #============= Creat SQLAlchemy Engine =============
-    if os.path.exists(os.path.join("data", "database")) == False:
-        os.makedirs(os.path.join("data", "database"))
+def export_json(params):
 
-    engine = create_engine('sqlite:///data/database/ticket_activities.sqlite',
+    db_name = params.db
+    #============= Creat SQLAlchemy Engine =============
+    engine = create_engine(f'sqlite:///data/database/{db_name}',
                         echo=False)
 
     #============= load json file =============
@@ -22,6 +22,14 @@ def export_json():
 
     #============= export metadata from json file =============
     metadata_df = pd.DataFrame.from_dict(json_dict['metadata'], orient='index').T
+    metadata_df['start_at'] = pd.to_datetime(metadata_df['start_at'],
+                                                 dayfirst=True,
+                                                 utc=True,
+                                                 format="%d-%m-%Y %H:%M:%S %z")
+    metadata_df['end_at'] = pd.to_datetime(metadata_df['end_at'],
+                                             dayfirst=True,
+                                             utc=True,
+                                             format="%d-%m-%Y %H:%M:%S %z")
     metadata_df.to_sql('metadata', engine, if_exists='replace', index=False)
 
 
@@ -44,4 +52,11 @@ def export_json():
 
 
 if __name__ == '__main__':
-    export_json()
+    if os.path.exists(os.path.join("data", "database")) == False:
+        os.mkdir(os.path.join("data", "database"))
+
+    parser = argparse.ArgumentParser(description="Load json file to sqlite database")
+    parser.add_argument('-db', help='name of new database')
+    args = parser.parse_args()
+
+    export_json(args)

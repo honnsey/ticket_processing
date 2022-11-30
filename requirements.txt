@@ -1,0 +1,7 @@
+faker
+pytz
+sqlite3
+pandas==1.5.1
+numpy==1.23.4
+numpyencoder==0.3.0
+SQLAlchemy==1.4.36
