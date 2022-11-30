@@ -57,16 +57,18 @@ def generate_status(ticket_ids,status_list):
 
     # for tickets of the same id, allocate none repeated status
     ticket_dupes = ticket_uniques[np.where(ticket_counts > 1)]
-    idx_ticket_dupes = np.concatenate([np.where(ticket_ids == x)[0] for x in ticket_dupes])
-    status_dupes = np.concatenate([random.sample(status_list,count)
-                                   for count in ticket_counts[np.where(ticket_counts > 1)]])
-    status[idx_ticket_dupes] = status_dupes
+    if len(ticket_dupes) > 0:
+        idx_ticket_dupes = np.concatenate([np.where(ticket_ids == x)[0] for x in ticket_dupes])
+        status_dupes = np.concatenate([random.sample(status_list,count)
+                                    for count in ticket_counts[np.where(ticket_counts > 1)]])
+        status[idx_ticket_dupes] = status_dupes
 
     # for ticket_ids appearing only once, randomly choose a status from status list
     ticket_single = ticket_uniques[np.where(ticket_counts == 1)]
-    idx_ticket_single = np.concatenate([np.where(ticket_ids == x)[0] for x in ticket_single])
-    status_single = np.random.choice(status_list,len(ticket_single))
-    status[idx_ticket_single] = status_single
+    if len(ticket_single) > 0:
+        idx_ticket_single = np.concatenate([np.where(ticket_ids == x)[0] for x in ticket_single])
+        status_single = np.random.choice(status_list,len(ticket_single))
+        status[idx_ticket_single] = status_single
 
     return status
 
@@ -136,12 +138,15 @@ def get_tickets_with_notes(ticket_id):
     ticketID_w_notes = ticketID_note_pop * choose_random_note
     ticketID_w_notes = ticketID_w_notes[ticketID_w_notes != 0]  # remove zero
 
-    # generate note for the choosen ticket ids
-    note_id = np.random.randint(1000000, 9999999, len(ticketID_w_notes))
-    note_type = np.random.randint(0, 7, len(ticketID_w_notes))
-    note = [{"id": x, "type": y} for x, y in zip(note_id, note_type)]
-
-    idx_ticketID_w_notes = np.concatenate(
-        [np.where(ticket_id == x)[0] for x in ticketID_w_notes]).tolist()
+    if len(ticketID_w_notes) > 0:
+        # generate note for the choosen ticket ids
+        note_id = np.random.randint(1000000, 9999999, len(ticketID_w_notes))
+        note_type = np.random.randint(0, 7, len(ticketID_w_notes))
+        note = [{"id": x, "type": y} for x, y in zip(note_id, note_type)]
+        idx_ticketID_w_notes = np.concatenate(
+            [np.where(ticket_id == x)[0] for x in ticketID_w_notes]).tolist()
+    else:
+        note = []
+        idx_ticketID_w_notes = []
 
     return note, idx_ticketID_w_notes

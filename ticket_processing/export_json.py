@@ -41,9 +41,11 @@ def export_json(params):
     df_raw = pd.concat([df_raw.drop(columns=['activity']), df_raw.activity.apply(pd.Series)],
                         axis=1)
     # unpack column "note", rename for clarity
-    df_raw = pd.concat([df_raw.drop(columns='note'),
-                        df_raw.note.apply(pd.Series).drop(columns=0).rename(columns=lambda x: "_".join(["note", x]))],
-                    axis=1)
+    if 'note' in df_raw.columns:
+        df_raw = pd.concat([df_raw.drop(columns='note'),
+                            df_raw.note.apply(pd.Series).drop(columns=0).rename(columns=lambda x: "_".join(["note", x]))],
+                        axis=1)
+
     df_raw['performed_at'] = pd.to_datetime(df_raw['performed_at'],
                                             dayfirst=True,
                                             utc=True,

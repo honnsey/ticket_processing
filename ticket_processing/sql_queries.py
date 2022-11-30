@@ -8,6 +8,7 @@ import pandas as pd
 def sqlite_query(params):
 
     db_name = params.db
+    output_name = params.o
 
     conn = sqlite3.connect(f'data/database/{db_name}')
     c = conn.cursor()
@@ -60,22 +61,23 @@ def sqlite_query(params):
             ''')
     rows = c.fetchall()
 
-    return rows
+    return rows, output_name
 
 if __name__ == '__main__':
     if os.path.exists(os.path.join("data","outputs")) == False:
         os.mkdir(os.path.join("data", "outputs"))
 
     parser = argparse.ArgumentParser(
-        description="Load json file to sqlite database")
+        description="SQL queries - output to csv")
     parser.add_argument('-db', help='name of existing database')
+    parser.add_argument('-o', help='csv output name to store')
     args = parser.parse_args()
 
-    rows = sqlite_query(args)
+    rows, output_name = sqlite_query(args)
     pd.DataFrame(rows,
                  columns=[
                      "ticket_id", "time_spent_open",
                      "time_spent_waiting_on_customer",
                      "time_spent_waiting_for_response", "time_till_resolution",
                      "time_to_first_response"
-                 ]).to_csv('data/outputs/outputs.csv', index=False)
+                 ]).to_csv(f'data/outputs/{output_name}', index=False)
