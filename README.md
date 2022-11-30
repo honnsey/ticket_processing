@@ -79,3 +79,7 @@ This program can be run through the Makefile.
 
 Notes:
 - If the data directory does not exists, then Step 4 will create a data/ directory with subdirectories
+- If you want to create the ticket activities in json format only, use the following command
+```
+python ticket_processing/ticket_gen.py -n ticket_amount -o json_file_name
+```
