@@ -5,8 +5,10 @@ This program contains three functionalities:
 
 1. Create FRESHDESK Ticket Activities
 
-"ticket_gen.py" imitates the ticket activity export function of FRESHDESK. The exported data is in .json format and based on the following structure:
+"ticket_gen.py" imitates the ticket activity export function of FRESHDESK.
 
+The exported data is in .json format and based on the following structure:
+```json
 {
     "metadata": {
         "start_at": "20-04-2017 10:00:00 +0000",
@@ -45,6 +47,7 @@ This program contains three functionalities:
         }
     }]
 }
+```
 Notes:
 - The program assumes that ticket activities are exported for a 24-hour period, ending with the current date time
 - There can be multiple activities related to the same ticket ID within the export time window.
@@ -76,4 +79,3 @@ This program can be run through the Makefile.
 
 Notes:
 - If the data directory does not exists, then Step 4 will create a data/ directory with subdirectories
-- The output of Step 4 should look like this
