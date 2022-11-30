@@ -61,16 +61,18 @@ Notes:
 - Time spent waiting for response (Pending Status)
 - Time till resolution
 - Time to first response
+
 for each unique ticket ID.
+
 Outputs from the queries are saved in $(pwd)/data/outputs in .csv format
 
 ## INSTRUCTION
 
 This program can be run through the Makefile.
-Step 1: Clone this repo to your local disk
-Step 2: In your terminal, run command "make complete_set_up" to install the package and its requirements
-Step 3: Open Makefile and change the variables as desired, then save Makefile.
-Step 4: Return to your terminal and run command "make create_process_tickets" to create random ticket activities and calculate processing times for each ticket ID.
+- Step 1: Clone this repo to your local disk
+- Step 2: In your terminal, run command "make complete_set_up" to install the package and its requirements
+- Step 3: Open Makefile and change the variables as desired, then save Makefile.
+- Step 4: Return to your terminal and run command "make create_process_tickets" to create random ticket activities and calculate processing times for each ticket ID.
 
 Notes:
 - If the data directory does not exists, then Step 4 will create a data/ directory with subdirectories
