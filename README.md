@@ -1,7 +1,7 @@
 FRESHDESK Tickets
 
 ## FUNCTIONALITIES
-This program containes three functionalities:
+This program contains three functionalities:
 
 1. Create FRESHDESK Ticket Activities
 
@@ -48,9 +48,11 @@ This program containes three functionalities:
 Notes:
 - The program assumes that ticket activities are exported for a 24-hour period, ending with the current date time
 - There can be multiple activities related to the same ticket ID within the export time window.
+- Generated .json file is saved under $(pwd)/data/json
 
 2. Data Ingestion
 "export_json.py" reads and ingests the generated ticket activities into an sqlite database.
+- This database is saved under $(pwd)/data/database
 
 3. Data Transform
 "sql_queries.py" connects to the database and uses SQL queries to determine:
@@ -59,3 +61,17 @@ Notes:
 - Time spent waiting for response (Pending Status)
 - Time till resolution
 - Time to first response
+for each unique ticket ID.
+Outputs from the queries are saved in $(pwd)/data/outputs in .csv format
+
+## INSTRUCTION
+
+This program can be run through the Makefile.
+Step 1: Pull this repo to your local disk
+Step 2: In your terminal, run command "make complete_set_up" to install the package and its requirements
+Step 3: Open Makefile and change the variables as desired, then save makefile.
+Step 4: Return to your terminal and run command "make create_process_tickets" to create random ticket activities and calculate processing times for each ticket ID.
+
+Notes:
+- If the data directory does not exists, then Step 4 will create a data/ directory with subdirectories
+- The output of Step 4 should look like this
